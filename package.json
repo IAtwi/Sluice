@@ -16,7 +16,8 @@
     "resolve": "node dist/scripts/resolve.js",
     "clean": "rm -rf dist",
     "selftest": "node dist/scripts/selftest.js",
-    "check": "node dist/main.js --check"
+    "check": "node dist/main.js --check",
+    "init:new": "node dist/main.js --init-new"
   },
   "devDependencies": {
     "@types/node": "^22.7.5",

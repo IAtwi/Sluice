@@ -60,12 +60,13 @@ Sluice - routes new YouTube uploads into playlists on your account.
   npm start            run normally
   npm run dry          evaluate and log, but never write to a playlist
   npm run init         mark everything currently in each feed as seen, add nothing
+  npm run init:new     same, but only for routes never initialised before
   npm run auth         one-time OAuth flow to mint a refresh token
   npm run check        verify every route's channel and playlist resolve
   npm run resolve @x   look up a channel id from its @handle
   npm run selftest     offline checks of parsing, rules, filters and state
 
-Flags: --dry-run  --init  --check  --route=<id>  --help
+Flags: --dry-run  --init  --init-new  --check  --route=<id>  --help
 `);
 }
 
@@ -78,6 +79,7 @@ async function main(): Promise<number> {
 
   const dryRun = CONFIG.dryRun || args.includes('--dry-run');
   const init = args.includes('--init');
+  const initNew = args.includes('--init-new');
   const only = args.find((a) => a.startsWith('--route='))?.split('=')[1];
 
   loadEnv();
@@ -93,7 +95,7 @@ async function main(): Promise<number> {
 
   if (selectedForCheck) return (await checkRoutes(selected)) > 0 ? 1 : 0;
 
-  const mode = init ? 'init' : dryRun ? 'dry-run' : 'live';
+  const mode = init ? 'init' : initNew ? 'init-new' : dryRun ? 'dry-run' : 'live';
   summary.info(`start: ${selected.length} route(s), mode=${mode}`);
 
   const state = loadState();
@@ -101,7 +103,7 @@ async function main(): Promise<number> {
 
   try {
     for (const route of selected) {
-      const stats = await runRoute(route, state, { dryRun, init });
+      const stats = await runRoute(route, state, { dryRun, init, initNew });
       totals.added += stats.added;
       totals.rejected += stats.rejected;
       totals.deferred += stats.deferred;

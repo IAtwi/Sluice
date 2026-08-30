@@ -8,7 +8,14 @@ import { addToPlaylist, getVideos, isInPlaylist } from './youtube.js';
 
 export interface RunOptions {
   dryRun: boolean;
+  /** Seed every route from its current feed. */
   init: boolean;
+  /**
+   * Seed only routes that have never been initialised, leaving existing ones untouched.
+   * Used by deploy.sh: a blanket --init on every deploy would mark a genuinely new upload
+   * as seen if it appeared between the last cron run and the deploy.
+   */
+  initNew: boolean;
 }
 
 function message(err: unknown): string {
@@ -35,6 +42,15 @@ export async function runRoute(route: Route, state: State, opts: RunOptions): Pr
   const rs = routeState(state, route.id);
   const startedAt = new Date();
   const label = route.label ?? route.id;
+  const uninitialised = rs.lastRunAt === undefined && rs.decided.length === 0;
+
+  // Return before the try block so lastRunAt is not stamped for a route we never looked at.
+  if (opts.initNew && !uninitialised) {
+    log.raw('');
+    log.raw(`=== init-new ${fullStamp(startedAt)} | ${label} ===`);
+    log.info('already initialised, left untouched');
+    return stats;
+  }
 
   log.raw('');
   log.raw(`=== run ${fullStamp(startedAt)} | ${label} | last run ${fullStamp(rs.lastRunAt)} ===`);
@@ -42,7 +58,7 @@ export async function runRoute(route: Route, state: State, opts: RunOptions): Pr
   try {
     const entries = await fetchFeed(route.channelId);
 
-    if (opts.init) {
+    if (opts.init || opts.initNew) {
       let seeded = 0;
       for (const entry of entries) {
         if (!rs.decided.includes(entry.videoId)) {
@@ -57,7 +73,7 @@ export async function runRoute(route: Route, state: State, opts: RunOptions): Pr
     // Safety net: a route that has never been initialised would treat its entire current
     // feed as new and add ~15 back-catalogue videos in one go. Refuse instead. This covers
     // forgetting --init on a fresh deploy, and adding a new creator to an existing install.
-    if (rs.lastRunAt === undefined && rs.decided.length === 0) {
+    if (uninitialised) {
       log.warn(
         `route has never been initialised, skipping to avoid adding the existing backlog. ` +
           `Run:  node dist/main.js --init --route=${route.id}`,

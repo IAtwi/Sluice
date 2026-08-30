@@ -128,8 +128,10 @@ Rules are free; the probe is an HTTP request. Order is set in `runner.ts:decide(
   `state.json` is gitignored, so every machine needs its own init. Per route:
   `node dist/main.js --init --route=<id>`.
 - `dist/` is gitignored. A server pull brings source only, so a rebuild is always required.
-  `deploy.sh` does pull, `npm ci`, build, prune. Cron never needs changing: it runs
-  `dist/main.js`, replaced in place.
+  `deploy.sh` is the single server command: pull, `npm ci`, build, `--init-new`, prune.
+  Cron never needs changing: it runs `dist/main.js`, replaced in place.
+- `--init-new` seeds ONLY routes with no state. Never make deploy run a blanket `--init`: it
+  would mark an upload that landed between the last cron run and the deploy as seen, losing it.
 
 ## Testing
 
