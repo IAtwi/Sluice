@@ -1,0 +1,24 @@
+{
+  "name": "sluice",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Routes new YouTube uploads from chosen creators into specific playlists on your own account.",
+  "type": "module",
+  "engines": {
+    "node": ">=20.6"
+  },
+  "scripts": {
+    "build": "tsc",
+    "start": "node dist/main.js",
+    "init": "node dist/main.js --init",
+    "dry": "node dist/main.js --dry-run",
+    "auth": "node dist/scripts/get-refresh-token.js",
+    "resolve": "node dist/scripts/resolve.js",
+    "clean": "rm -rf dist",
+    "selftest": "node dist/scripts/selftest.js"
+  },
+  "devDependencies": {
+    "@types/node": "^22.7.5",
+    "typescript": "^5.6.3"
+  }
+}
