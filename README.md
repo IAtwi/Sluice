@@ -249,6 +249,8 @@ additions per day. Because detection is free, polling more often costs nothing e
 | Symptom | Cause |
 |---|---|
 | `invalid_grant` on every run | Consent screen still in *Testing*, so the refresh token expired after 7 days. Publish the app, then `npm run auth` again. |
+| "limited to 100 sensitive scope logins until verified" | Not a problem. That is a cap of 100 distinct *users* granting consent, and you are one. It applies only to `npm run auth`, never to the token refreshes the cron job performs. Verification is not needed for personal use. |
+| "Google hasn't verified this app" during `npm run auth` | Expected and permanent for an unverified personal app. Click Advanced, then "Go to Sluice". |
 | `node: command not found` in cron | Node installed via nvm. Use NodeSource, or put the absolute path in the crontab. |
 | Videos added twice | Should be impossible. Check that `playlistId` is right and that two routes do not target the same playlist with overlapping rules. |
 | Nothing ever added | Run `npm run dry` and read the log. Most often a rule rejects everything, or `init` has just marked the backlog as seen (which is correct). |

@@ -103,6 +103,17 @@ Rules are free; the probe is an HTTP request. Order is set in `runner.ts:decide(
   The escape hatch, if it ever matters, is the uploads playlist (`UC...` becomes `UU...`),
   paginated at 1 unit per 50 videos. Not implemented; do not add it speculatively.
 
+## Google Cloud facts worth not relearning
+
+- Publishing the consent screen to production is required. In *Testing*, refresh tokens expire
+  after 7 days and the cron job dies silently.
+- Publishing to production requires a reachable homepage URL and privacy policy URL. Those are
+  served from `docs/` via GitHub Pages.
+- The "limited to 100 sensitive scope logins" warning is a 100-*user* cap on consent grants, not
+  a request or refresh limit. One user, so it is irrelevant. Verification is never needed here.
+- The console UI is now "Google Auth Platform": scopes live under Data Access, OAuth clients
+  under Clients (formerly Credentials).
+
 ## Invariants
 
 - `markDecided` is called for **added** and **rejected** videos only. Never for deferred ones.
