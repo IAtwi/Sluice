@@ -10,8 +10,7 @@ export const ken: Route = {
   label: 'Ken (@kenforrest)',
   channelId: 'UCiFOL6V9KbvxfXvzdFSsqCw',
 
-  // TODO: replace with the full playlist id from the playlist URL's list= parameter.
-  // The value supplied was "PLdoqNGbOIGUI" (13 chars); YouTube playlist ids are normally 34.
+  // Playlist "Sluice_CR" (private). Verify with: npm run check
   playlistId: 'PLdoqNGbOIGUI',
 
   rules: [],

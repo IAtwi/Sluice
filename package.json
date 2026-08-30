@@ -15,7 +15,8 @@
     "auth": "node dist/scripts/get-refresh-token.js",
     "resolve": "node dist/scripts/resolve.js",
     "clean": "rm -rf dist",
-    "selftest": "node dist/scripts/selftest.js"
+    "selftest": "node dist/scripts/selftest.js",
+    "check": "node dist/main.js --check"
   },
   "devDependencies": {
     "@types/node": "^22.7.5",

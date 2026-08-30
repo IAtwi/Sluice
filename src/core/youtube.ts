@@ -149,3 +149,24 @@ export async function resolveHandle(handle: string): Promise<{ id: string; title
   const first = json.items?.[0];
   return first ? { id: first.id, title: first.snippet?.title ?? '' } : null;
 }
+
+/**
+ * Verifies a playlist exists and is visible to the authenticated account. 1 quota unit.
+ * Returns null when the id is wrong or the playlist belongs to someone else.
+ */
+export async function getPlaylist(
+  playlistId: string,
+): Promise<{ id: string; title: string; itemCount: number | undefined } | null> {
+  const token = await getAccessToken();
+  const url = `${API}/playlists?part=snippet,contentDetails&id=${encodeURIComponent(playlistId)}`;
+  const json = await requestJson<{
+    items?: { id: string; snippet?: { title?: string }; contentDetails?: { itemCount?: number } }[];
+  }>(url, { headers: authHeaders(token) });
+  const first = json.items?.[0];
+  if (!first) return null;
+  return {
+    id: first.id,
+    title: first.snippet?.title ?? '',
+    itemCount: first.contentDetails?.itemCount,
+  };
+}

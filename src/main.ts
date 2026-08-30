@@ -1,9 +1,57 @@
 import { CONFIG } from './config.js';
 import { loadEnv } from './core/env.js';
+import { fetchFeed } from './core/feed.js';
 import { Logger, pruneOldLogs } from './core/logger.js';
 import { runRoute } from './core/runner.js';
 import { loadState, saveState } from './core/state.js';
+import type { Route } from './core/types.js';
+import { getPlaylist } from './core/youtube.js';
 import { routes } from './routes/index.js';
+
+function message(err: unknown): string {
+  return err instanceof Error ? err.message : String(err);
+}
+
+/**
+ * Preflight: confirms every route's channel feed resolves and its playlist exists and is
+ * owned by the authenticated account. Costs 1 quota unit per route. Run after adding a route.
+ */
+async function checkRoutes(selected: Route[]): Promise<number> {
+  let failures = 0;
+
+  for (const route of selected) {
+    console.log(`\n${route.label ?? route.id}  [${route.id}]`);
+
+    try {
+      const entries = await fetchFeed(route.channelId);
+      console.log(`  feed      ok, ${entries.length} item(s), latest "${entries[0]?.title ?? '-'}"`);
+    } catch (err) {
+      failures++;
+      console.log(`  feed      FAIL  ${message(err)}`);
+    }
+
+    try {
+      const playlist = await getPlaylist(route.playlistId);
+      if (playlist) {
+        console.log(`  playlist  ok, "${playlist.title}" (${playlist.itemCount ?? '?'} video(s))`);
+      } else {
+        failures++;
+        console.log(`  playlist  FAIL  ${route.playlistId} not found, or not owned by this account`);
+      }
+    } catch (err) {
+      failures++;
+      console.log(`  playlist  FAIL  ${message(err)}`);
+    }
+
+    const rules = route.rules ?? [];
+    console.log(
+      `  rules     ${rules.length === 0 ? 'none (accepts everything the global filters pass)' : rules.map((r) => r.name).join(' AND ')}`,
+    );
+  }
+
+  console.log(failures === 0 ? '\nAll routes look good.\n' : `\n${failures} problem(s) found.\n`);
+  return failures;
+}
 
 function printHelp(): void {
   console.log(`
@@ -13,10 +61,11 @@ Sluice - routes new YouTube uploads into playlists on your account.
   npm run dry          evaluate and log, but never write to a playlist
   npm run init         mark everything currently in each feed as seen, add nothing
   npm run auth         one-time OAuth flow to mint a refresh token
+  npm run check        verify every route's channel and playlist resolve
   npm run resolve @x   look up a channel id from its @handle
   npm run selftest     offline checks of parsing, rules, filters and state
 
-Flags: --dry-run  --init  --route=<id>  --help
+Flags: --dry-run  --init  --check  --route=<id>  --help
 `);
 }
 
@@ -32,6 +81,8 @@ async function main(): Promise<number> {
   const only = args.find((a) => a.startsWith('--route='))?.split('=')[1];
 
   loadEnv();
+
+  const selectedForCheck = args.includes('--check');
   const summary = new Logger('_summary');
 
   const selected = routes.filter((r) => r.enabled !== false && (!only || r.id === only));
@@ -39,6 +90,8 @@ async function main(): Promise<number> {
     summary.warn(only ? `no enabled route matches --route=${only}` : 'no enabled routes configured');
     return 1;
   }
+
+  if (selectedForCheck) return (await checkRoutes(selected)) > 0 ? 1 : 0;
 
   const mode = init ? 'init' : dryRun ? 'dry-run' : 'live';
   summary.info(`start: ${selected.length} route(s), mode=${mode}`);

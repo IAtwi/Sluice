@@ -122,6 +122,7 @@ Per-route overrides: `excludeShorts`, `minDurationMinutes`, `maxDurationMinutes`
 ### 4. First run
 
 ```bash
+npm run check   # confirms every channel and playlist resolves
 npm run init    # marks everything currently in each feed as seen, adds nothing
 npm run dry     # evaluates and logs, but never writes to a playlist
 npm start       # live
@@ -145,6 +146,7 @@ sudo timedatectl set-timezone Asia/Beirut     # keeps log names aligned with you
 git clone <repo> ~/sluice && cd ~/sluice
 npm ci && npm run build
 nano .env                                      # the three secrets
+npm run check
 npm run init
 npm run dry                                    # confirm before going live
 ```
@@ -192,11 +194,12 @@ Rebuild (`npm run build`) after changing config.
 | `npm run dry` | evaluate and log, never write to a playlist |
 | `npm run init` | mark current feed contents as seen, add nothing |
 | `npm run auth` | one-time OAuth flow, prints a refresh token |
+| `npm run check` | verify every route's channel feed and playlist resolve (1 unit per route) |
 | `npm run resolve @handle` | look up a channel id (1 quota unit) |
 | `npm run selftest` | offline checks of parsing, rules, filters, state, logging |
 | `npm run build` | compile to `dist/` |
 
-Flags: `--dry-run`, `--init`, `--route=<id>`, `--help`.
+Flags: `--dry-run`, `--init`, `--check`, `--route=<id>`, `--help`.
 
 ## Quota
 
@@ -208,6 +211,7 @@ The daily limit is 10,000 units.
 | Shorts URL check | 0 |
 | `videos.list` (batched, up to 50) | 1 |
 | playlist membership check | 1 |
+| `playlists.list` (preflight `--check`) | 1 |
 | **playlist insert** | **50** |
 
 Roughly 50 units per day of fixed cost at a 30 minute cadence, leaving room for about 190 video

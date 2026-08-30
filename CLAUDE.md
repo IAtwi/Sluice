@@ -112,6 +112,9 @@ Rules are free; the probe is an HTTP request. Order is set in `runner.ts:decide(
 `npm run selftest` covers everything that needs no network or credentials: feed parsing, entity
 decoding, ISO durations, rules, filters, state capping, log naming and retention. 44 assertions.
 
+`npm run check` is the preflight: it confirms each route's channel feed resolves and its playlist
+exists and is owned by the authenticated account. Run it after adding any route.
+
 `fixtures/UCiFOL6V9KbvxfXvzdFSsqCw.xml` is a real capture of Ken's feed. Setting
 `SLUICE_FIXTURE_DIR=fixtures` makes `feed.ts` read from disk instead of the network, which also
 lets `--init` be exercised offline.
@@ -121,6 +124,8 @@ be verified on the VPS or on Hadi's own machine.
 
 ## Environment notes
 
+- Playlist ids are not always 34 characters. `PLdoqNGbOIGUI` is a real, valid id. Do not "fix"
+  short-looking ids; verify with `npm run check` instead.
 - Node 22. Ubuntu 24's apt `nodejs` is 18.19 and end of life; use NodeSource so `node` lands in
   `/usr/bin` where cron's minimal PATH can find it. nvm breaks cron.
 - The mounted working folder does not permit file deletion. Overwrite instead of `rm`.
@@ -129,6 +134,6 @@ be verified on the VPS or on Hadi's own machine.
 
 | id | creator | playlist | rules |
 |---|---|---|---|
-| `ken` | Ken (@kenforrest), Clash Royale, `UCiFOL6V9KbvxfXvzdFSsqCw` | `PLdoqNGbOIGUI` (**needs verifying, looks truncated**) | none |
+| `ken` | Ken (@kenforrest), Clash Royale, `UCiFOL6V9KbvxfXvzdFSsqCw` | `PLdoqNGbOIGUI` ("Sluice_CR", private, verified) | none |
 
 More creators to be added once the first is running.
