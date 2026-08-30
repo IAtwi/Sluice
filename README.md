@@ -164,17 +164,29 @@ curl -fsSL https://deb.nodesource.com/setup_22.x | sudo -E bash -
 sudo apt install -y nodejs
 sudo timedatectl set-timezone Asia/Beirut     # keeps log names aligned with your clock
 
-git clone <repo> ~/sluice && cd ~/sluice
+git clone https://github.com/IAtwi/Sluice.git ~/sluice && cd ~/sluice
 npm ci && npm run build
 nano .env                                      # the three secrets
-npm run check
-npm run init
+npm run check                                  # channel + playlist resolve
+npm run init                                   # mark the current backlog as seen
 npm run dry                                    # confirm before going live
+npm start                                      # first real run
+```
+
+Sluice has no runtime dependencies, so once `dist/` is built, `node_modules` (26 MB of
+TypeScript, needed only to compile) can be deleted. The running program is 76 KB:
+
+```bash
+rm -rf node_modules       # restore with npm ci when you next need to rebuild
 ```
 
 ```cron
 */30 * * * * cd $HOME/sluice && /usr/bin/flock -n /tmp/sluice.lock /usr/bin/node dist/main.js 2>&1 | /usr/bin/logger -t sluice
 ```
+
+Use the literal path rather than `$HOME` if you prefer, and note the `cd` is required: Sluice
+resolves `.env`, `state.json` and `logs/` relative to the working directory, and cron does not
+start in the project folder.
 
 `flock` stops a slow run from overlapping the next one. Piping to `logger` sends crash output to
 journald, which rotates itself; without it cron tries to email the output and fills `/var/mail`.
