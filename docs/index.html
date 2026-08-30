@@ -1,0 +1,39 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Sluice</title>
+<style>
+  :root { color-scheme: light dark; }
+  body { max-width: 40rem; margin: 3rem auto; padding: 0 1.25rem;
+         font: 16px/1.65 system-ui, -apple-system, Segoe UI, Roboto, sans-serif; }
+  h1 { margin-bottom: .25rem; }
+  .sub { color: #667; margin-top: 0; }
+  code { background: rgba(127,127,127,.15); padding: .1em .35em; border-radius: 3px; }
+  footer { margin-top: 2.5rem; font-size: .9rem; color: #667; }
+</style>
+</head>
+<body>
+  <h1>Sluice</h1>
+  <p class="sub">Files new YouTube uploads from chosen creators into playlists on your own account.</p>
+
+  <p>Sluice is a small personal automation tool. It watches the public RSS feeds of YouTube
+  channels you choose, applies rules you define, and adds matching new uploads to a playlist
+  on your own YouTube account. It runs on a schedule on a server you control.</p>
+
+  <h2>How it works</h2>
+  <ul>
+    <li>Discovery uses each channel's public RSS feed, which needs no account access.</li>
+    <li>Adding a video to your playlist uses the YouTube Data API, authorized by you via Google OAuth.</li>
+    <li>It only ever writes to playlists you configure. It reads nothing else from your account.</li>
+  </ul>
+
+  <h2>Source</h2>
+  <p>Sluice is open source: <a href="https://github.com/IAtwi/Sluice">github.com/IAtwi/Sluice</a></p>
+
+  <footer>
+    <a href="./privacy.html">Privacy policy</a>
+  </footer>
+</body>
+</html>

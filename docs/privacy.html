@@ -1,0 +1,61 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Sluice - Privacy Policy</title>
+<style>
+  :root { color-scheme: light dark; }
+  body { max-width: 40rem; margin: 3rem auto; padding: 0 1.25rem;
+         font: 16px/1.65 system-ui, -apple-system, Segoe UI, Roboto, sans-serif; }
+  h1 { margin-bottom: .25rem; }
+  .sub { color: #667; margin-top: 0; }
+  code { background: rgba(127,127,127,.15); padding: .1em .35em; border-radius: 3px; }
+  footer { margin-top: 2.5rem; font-size: .9rem; color: #667; }
+</style>
+</head>
+<body>
+  <h1>Privacy Policy</h1>
+  <p class="sub">Sluice. Last updated 30 August 2026.</p>
+
+  <p>Sluice is a personal, self-hosted automation tool. Each person who uses it runs their own
+  copy on their own server, using their own Google credentials. There is no hosted service, no
+  shared backend, and no operator who receives your data.</p>
+
+  <h2>What it accesses</h2>
+  <p>With your authorization through Google OAuth, Sluice uses the YouTube Data API to:</p>
+  <ul>
+    <li>read public metadata about videos (title, description, duration, live status);</li>
+    <li>check whether a video is already in a playlist you configured;</li>
+    <li>add a video to a playlist you configured.</li>
+  </ul>
+  <p>It requests the <code>https://www.googleapis.com/auth/youtube</code> scope, which is the
+  narrowest scope that permits adding items to a playlist. It does not read your watch history,
+  subscriptions, comments, or any other part of your account, and it never deletes anything.</p>
+
+  <h2>What it stores</h2>
+  <p>Sluice stores, in a plain file on your own server:</p>
+  <ul>
+    <li>YouTube video IDs it has already made a decision about, so it does not act twice;</li>
+    <li>timestamps of when it last ran;</li>
+    <li>log files recording what it added and why, deleted automatically after 7 days by default.</li>
+  </ul>
+  <p>Your OAuth credentials are stored only in a local <code>.env</code> file on your own server.
+  No personal information beyond this is collected or retained.</p>
+
+  <h2>What it shares</h2>
+  <p>Nothing. Sluice communicates only with Google's own APIs and YouTube's public RSS feeds.
+  There are no analytics, no telemetry, no third-party services, and no transmission of your data
+  to the author or anyone else.</p>
+
+  <h2>Revoking access</h2>
+  <p>You can revoke Sluice's access to your Google account at any time at
+  <a href="https://myaccount.google.com/permissions">myaccount.google.com/permissions</a>.
+  Deleting your copy of the software removes all stored data with it.</p>
+
+  <h2>Contact</h2>
+  <p>Questions or issues: <a href="https://github.com/IAtwi/Sluice/issues">github.com/IAtwi/Sluice/issues</a></p>
+
+  <footer><a href="./index.html">Back to Sluice</a></footer>
+</body>
+</html>
