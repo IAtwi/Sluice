@@ -192,6 +192,34 @@ start in the project folder.
 journald, which rotates itself; without it cron tries to email the output and fills `/var/mail`.
 Read crashes with `journalctl -t sluice -n 50`.
 
+### Updating the server
+
+`dist/` is gitignored, so a pull brings source only. **You must rebuild.** Everything else stays
+as it is: cron is untouched (it runs `dist/main.js`, which is replaced in place), and `.env` and
+`state.json` are gitignored so they survive.
+
+```bash
+cd ~/sluice && ./deploy.sh
+```
+
+That pulls, installs the build tools, rebuilds, and prunes `node_modules` again. Doing it by hand
+is the same four steps:
+
+```bash
+git pull && npm ci && npm run build && rm -rf node_modules
+```
+
+`npm ci` is not optional if you deleted `node_modules` after the last deploy, since `npm run build`
+needs the TypeScript compiler. Skipping it gives `tsc: not found`.
+
+**If you added a route**, it has no state on the server and will refuse to run until initialised:
+
+```bash
+node dist/main.js --init --route=<id>
+```
+
+Only that route is touched. Every other route keeps its history untouched.
+
 ---
 
 ## Logs
@@ -232,6 +260,8 @@ Rebuild (`npm run build`) after changing config.
 | `npm start` | one normal run |
 | `npm run dry` | evaluate and log, never write to a playlist |
 | `npm run init` | mark current feed contents as seen, add nothing |
+| `npm run init -- --route=<id>` | same, but for one route only. Use when adding a creator |
+| `./deploy.sh` | pull, rebuild and prune on the server |
 | `npm run auth` | one-time OAuth flow, prints a refresh token |
 | `npm run check` | verify every route's channel feed and playlist resolve (1 unit per route) |
 | `npm run resolve @handle` | look up a channel id (1 quota unit) |
