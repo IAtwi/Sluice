@@ -120,6 +120,9 @@ Rules are free; the probe is an HTTP request. Order is set in `runner.ts:decide(
 - `saveState` runs in a `finally`, so partial progress survives a mid-run failure.
 - State writes are atomic (temp file then rename).
 - Logging failures are swallowed. Logging must never kill a run.
+- The logger only ever appends (`appendFileSync`). It never truncates, so an empty or short log
+  means either no runs happened or something external rewrote the file (a text editor will).
+  journald holds a duplicate of every line while `logs.alsoConsole` is true.
 - Human-facing times go through `fullStamp()`. Machine-facing times stay UTC ISO.
 - A corrupt `state.json` throws rather than silently resetting history.
 - `npm run init` must be run before the first live run, or the backlog gets added. Enforced:

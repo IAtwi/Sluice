@@ -204,6 +204,14 @@ tail -f ~/sluice/logs/ken/$(date +%F).log      # one route, one day
 Prefer `journalctl -f` for watching. The `tail` command resolves `$(date +%F)` once, so at
 midnight Sluice starts a new dated file and your `tail` silently follows the old one forever.
 
+**Never open a log file in a text editor.** Sluice appends to the current day's file every 30
+minutes, and an editor writes its whole buffer back on save, silently discarding anything
+appended since you opened it. Use `tail`, `less` or `journalctl`, which only read.
+
+If a log looks empty or truncated, nothing is lost: journald holds the same lines. Recover with
+`journalctl -t sluice --since today`. The authoritative answer to "is it actually running" is
+`lastRunAt` in `state.json`, which every run updates.
+
 A run that finds nothing still logs, which is how you tell "working" from "not running":
 
 ```
