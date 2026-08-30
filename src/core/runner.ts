@@ -54,6 +54,17 @@ export async function runRoute(route: Route, state: State, opts: RunOptions): Pr
       return stats;
     }
 
+    // Safety net: a route that has never been initialised would treat its entire current
+    // feed as new and add ~15 back-catalogue videos in one go. Refuse instead. This covers
+    // forgetting --init on a fresh deploy, and adding a new creator to an existing install.
+    if (rs.lastRunAt === undefined && rs.decided.length === 0) {
+      log.warn(
+        `route has never been initialised, skipping to avoid adding the existing backlog. ` +
+          `Run:  node dist/main.js --init --route=${route.id}`,
+      );
+      return stats;
+    }
+
     // The feed only ever holds ~15 uploads, so "in the feed and not yet decided" is the
     // whole novelty test. lookbackDays is only a guard against a long outage backfilling.
     const cutoff = Date.now() - CONFIG.lookbackDays * 86_400_000;

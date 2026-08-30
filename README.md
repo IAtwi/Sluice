@@ -128,8 +128,18 @@ npm run dry     # evaluates and logs, but never writes to a playlist
 npm start       # live
 ```
 
-**Always run `npm run init` first.** Without it, the first live run adds the last ~15 videos
-from every creator to your playlists.
+**Always run `npm run init` first.** It marks everything currently in each feed as already seen,
+so nothing existing is added. Only uploads that appear *after* that point are ever routed.
+
+As a safety net, a route with no state at all refuses to run and warns instead, so forgetting
+`init` cannot dump a backlog into a playlist. Initialise a single route with:
+
+```bash
+node dist/main.js --init --route=ken
+```
+
+`state.json` is per-machine and not in git, so **run `npm run init` again on the VPS** after
+deploying. Initialising locally does not initialise the server.
 
 ---
 

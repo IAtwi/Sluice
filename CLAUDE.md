@@ -111,7 +111,10 @@ Rules are free; the probe is an HTTP request. Order is set in `runner.ts:decide(
 - Logging failures are swallowed. Logging must never kill a run.
 - Human-facing times go through `fullStamp()`. Machine-facing times stay UTC ISO.
 - A corrupt `state.json` throws rather than silently resetting history.
-- `npm run init` must be run before the first live run, or the backlog gets added.
+- `npm run init` must be run before the first live run, or the backlog gets added. Enforced:
+  a route with `lastRunAt === undefined && decided.length === 0` skips with a warning rather
+  than adding its whole feed. This covers a fresh deploy and a newly added creator.
+  `state.json` is gitignored, so every machine needs its own init.
 
 ## Testing
 
