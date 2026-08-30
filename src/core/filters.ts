@@ -1,4 +1,5 @@
 import { CONFIG } from '../config.js';
+import { fullStamp } from './logger.js';
 import { isShort } from './shorts.js';
 import type { Decision, Route, Video } from './types.js';
 
@@ -10,7 +11,7 @@ import type { Decision, Route, Video } from './types.js';
 export function checkLiveStatus(video: Video): Decision {
   if (!CONFIG.filters.deferLiveAndUpcoming) return { kind: 'add' };
   if (video.liveStatus === 'none') return { kind: 'add' };
-  const when = video.scheduledStartTime ? `, scheduled ${video.scheduledStartTime}` : '';
+  const when = video.scheduledStartTime ? `, scheduled ${fullStamp(video.scheduledStartTime)}` : '';
   return { kind: 'defer', reason: `${video.liveStatus}${when}` };
 }
 

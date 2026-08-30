@@ -31,6 +31,28 @@ export function timeStamp(d = new Date()): string {
   return `${p.hour}:${p.minute}:${p.second}`;
 }
 
+/** UTC offset of CONFIG.logs.timezone at that instant, e.g. "+03:00". */
+function tzOffset(d: Date): string {
+  const fmt = new Intl.DateTimeFormat('en-US', {
+    timeZone: CONFIG.logs.timezone,
+    timeZoneName: 'longOffset',
+  });
+  const name = fmt.formatToParts(d).find((p) => p.type === 'timeZoneName')?.value ?? '';
+  return name.replace('GMT', '') || '+00:00';
+}
+
+/**
+ * Renders an instant in CONFIG.logs.timezone with its offset, for anything human facing.
+ * state.json keeps raw UTC ISO strings; only the logs are localised.
+ */
+export function fullStamp(value: Date | string | undefined): string {
+  if (value === undefined || value === '') return 'never';
+  const d = typeof value === 'string' ? new Date(value) : value;
+  if (Number.isNaN(d.getTime())) return String(value);
+  const p = tzParts(d);
+  return `${p.year}-${p.month}-${p.day} ${p.hour}:${p.minute}:${p.second} ${tzOffset(d)}`;
+}
+
 /** Log file name stem. 'daily' gives one file per day, 'per-run' one per run. */
 export function fileStamp(d = new Date()): string {
   const p = tzParts(d);

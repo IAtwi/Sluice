@@ -168,16 +168,22 @@ cross-route `logs/_summary/`. Files older than `logs.retentionDays` (default 7) 
 the end of every run, so the directory cannot grow without bound.
 
 ```
-=== run 2026-08-30T15:39:32.134Z | Ken (@kenforrest) | last run 2026-08-30T15:09:02.881Z ===
+=== run 2026-08-30 18:39:32 +03:00 | Ken (@kenforrest) | last run 2026-08-30 18:09:02 +03:00 ===
 18:39:32 INFO  feed ok: 15 item(s) in feed, 2 candidate(s)
 18:39:33 INFO  DEFER  ghi789 "Tourney Push" (live)
 18:39:33 INFO  ADDED  I4CsWt-lp08 "Minion Giant"
-                -> playlist PLxxxx | 12m30s | published 2026-08-30T15:00:02Z | added 2026-08-30T15:39:33Z
+                -> playlist PLxxxx | 12m30s | published 2026-08-30 18:00:02 +03:00 | added 2026-08-30 18:39:33 +03:00
 18:39:33 INFO  done: 1 added, 0 skipped, 1 deferred, 0 error(s) in 1.4s
 ```
 
-Timestamps and file names use `logs.timezone` (default `Asia/Beirut`), not the server clock, so
-they read correctly even on a UTC VPS. Set `logs.level` to `debug` to log every rejection reason.
+Every time in the logs is rendered in `logs.timezone` (default `Asia/Beirut`) with its UTC offset,
+not the server clock, so they read correctly even on a UTC VPS. The offset tracks DST on its own.
+
+`state.json` is the opposite on purpose: it stores raw UTC ISO timestamps, because it is data
+rather than something you read, and it has to stay unambiguous if the timezone setting ever
+changes. Logs are for you, state is for the machine.
+
+Set `logs.level` to `debug` to log every rejection reason.
 
 ---
 

@@ -1,7 +1,7 @@
 import { CONFIG } from '../config.js';
 import { fetchFeed } from './feed.js';
 import { checkLiveStatus, checkRules, checkShortsAndDuration, formatDuration } from './filters.js';
-import { Logger } from './logger.js';
+import { fullStamp, Logger } from './logger.js';
 import { markDecided, routeState } from './state.js';
 import type { Decision, Route, RunStats, State, Video } from './types.js';
 import { addToPlaylist, getVideos, isInPlaylist } from './youtube.js';
@@ -37,7 +37,7 @@ export async function runRoute(route: Route, state: State, opts: RunOptions): Pr
   const label = route.label ?? route.id;
 
   log.raw('');
-  log.raw(`=== run ${startedAt.toISOString()} | ${label} | last run ${rs.lastRunAt ?? 'never'} ===`);
+  log.raw(`=== run ${fullStamp(startedAt)} | ${label} | last run ${fullStamp(rs.lastRunAt)} ===`);
 
   try {
     const entries = await fetchFeed(route.channelId);
@@ -116,7 +116,7 @@ export async function runRoute(route: Route, state: State, opts: RunOptions): Pr
         log.info(`ADDED  ${video.id} "${video.title}"`);
         log.raw(
           `                -> playlist ${route.playlistId} | ${formatDuration(video.durationSeconds)} | ` +
-            `published ${video.publishedAt} | added ${new Date().toISOString()}`,
+            `published ${fullStamp(video.publishedAt)} | added ${fullStamp(new Date())}`,
         );
       } catch (err) {
         // Left undecided on purpose: the next run retries it, and isInPlaylist prevents a duplicate.

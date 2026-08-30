@@ -77,9 +77,14 @@ Native `fetch`, a regex RSS parser, a hand-rolled `.env` reader. Deliberately av
 `node-cron` would hold RAM permanently next to the Discord bot. A one-shot process exits in
 seconds. `flock` in the crontab prevents overlap with no application-level locking.
 
-**9. Log stamps use `CONFIG.logs.timezone`, not the server clock.**
+**9. Log stamps use `CONFIG.logs.timezone`, not the server clock. State stays UTC.**
 A UTC VPS would otherwise roll log files at 03:00 Beirut time, putting one evening's activity in
 two files. `Intl.DateTimeFormat` with `hourCycle: 'h23'`.
+Everything human facing goes through `fullStamp()` in `logger.ts`, which renders the instant in
+the configured zone with its UTC offset (DST aware). `state.json` deliberately keeps raw UTC ISO
+strings: it is machine data and must stay unambiguous if the timezone setting changes.
+**Do not print a bare `toISOString()` into a log line**, that was a real bug: run headers showed
+UTC while line prefixes showed local, three hours apart on adjacent lines.
 
 **10. Rule checks run before the Shorts URL probe.**
 Rules are free; the probe is an HTTP request. Order is set in `runner.ts:decide()`.
@@ -104,6 +109,7 @@ Rules are free; the probe is an HTTP request. Order is set in `runner.ts:decide(
 - `saveState` runs in a `finally`, so partial progress survives a mid-run failure.
 - State writes are atomic (temp file then rename).
 - Logging failures are swallowed. Logging must never kill a run.
+- Human-facing times go through `fullStamp()`. Machine-facing times stay UTC ISO.
 - A corrupt `state.json` throws rather than silently resetting history.
 - `npm run init` must be run before the first live run, or the backlog gets added.
 
