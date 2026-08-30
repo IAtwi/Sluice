@@ -59,16 +59,27 @@ told apart. Use `maxDurationMinutes` on a route to exclude long stream VODs.
 
 Adding to a playlist writes to your account, so this needs OAuth, not an API key.
 
+Google Cloud now requires two-step verification on your account before the console will open.
+Turn it on at [myaccount.google.com/security](https://myaccount.google.com/security) if prompted.
+This does not affect the automation: 2SV applies to interactive sign-in, never to the refresh
+token the VPS uses.
+
 1. Create a project at [console.cloud.google.com](https://console.cloud.google.com).
 2. **APIs & Services -> Library -> enable "YouTube Data API v3".**
-3. **APIs & Services -> OAuth consent screen**, type **External**. Fill in the app name and
-   your email for both contact fields.
-4. Add the scope `https://www.googleapis.com/auth/youtube`.
-5. **Audience -> Publish app.** Do not skip this. While the consent screen is in *Testing*,
-   refresh tokens expire after **7 days** and the job dies quietly. Unverified is fine, you are
-   the only user.
-6. **Credentials -> Create credentials -> OAuth client ID -> Desktop app.** Copy the client ID
-   and client secret.
+   Do this **first**. The scope in step 4 will not appear in the picker otherwise.
+3. **APIs & Services -> OAuth consent screen -> Get started.** Fill the form:
+   app name `Sluice`, your email as support contact, audience **External**
+   (Internal requires Google Workspace), your email again as developer contact.
+4. **Data Access -> Add or remove scopes** -> select `https://www.googleapis.com/auth/youtube`
+   -> Update -> Save. It is flagged as a sensitive scope, which is expected.
+5. **Audience -> Publish app.** Do not skip this. While it says *Testing*, refresh tokens expire
+   after **7 days** and the job dies quietly a week later. Unverified is fine, you are the only
+   user, and no verification process is needed.
+6. **Clients -> Create client -> application type "Desktop app".** Copy the client ID and
+   client secret into `.env`.
+
+The console labels these under "Google Auth Platform". If your UI differs, the sequence is the
+same: create the app, grant the youtube scope, publish it, then create a Desktop app client.
 
 ### 2. Local
 
