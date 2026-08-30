@@ -188,9 +188,33 @@ Use the literal path rather than `$HOME` if you prefer, and note the `cd` is req
 resolves `.env`, `state.json` and `logs/` relative to the working directory, and cron does not
 start in the project folder.
 
-`flock` stops a slow run from overlapping the next one. Piping to `logger` sends crash output to
+`flock` stops a slow run from overlapping the next one. Piping to `logger` sends output to
 journald, which rotates itself; without it cron tries to email the output and fills `/var/mail`.
-Read crashes with `journalctl -t sluice -n 50`.
+
+### Watching it run
+
+Sluice writes every line to its own log files *and* to stdout, so with the crontab above the full
+log also reaches journald. That gives you two views:
+
+```bash
+journalctl -t sluice -f                        # live, follows across midnight
+tail -f ~/sluice/logs/ken/$(date +%F).log      # one route, one day
+```
+
+Prefer `journalctl -f` for watching. The `tail` command resolves `$(date +%F)` once, so at
+midnight Sluice starts a new dated file and your `tail` silently follows the old one forever.
+
+A run that finds nothing still logs, which is how you tell "working" from "not running":
+
+```
+=== run 2026-08-30 18:30:01 +03:00 | Ken (@kenforrest) | last run 2026-08-30 18:00:02 +03:00 ===
+18:30:01 INFO  feed ok: 15 item(s) in feed, 0 candidate(s)
+18:30:02 INFO  done: 0 added, 0 skipped, 0 deferred, 0 error(s) in 0.9s
+```
+
+Most runs look like this. Ken uploads roughly daily, so expect one interesting run in about 48.
+Check the schedule itself with `crontab -l`, and confirm the daemon is up with
+`systemctl is-active cron`.
 
 ### Updating the server
 
