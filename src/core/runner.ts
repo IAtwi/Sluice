@@ -4,7 +4,7 @@ import { checkLiveStatus, checkRules, checkShortsAndDuration, formatDuration } f
 import { fullStamp, Logger } from './logger.js';
 import { markDecided, routeState } from './state.js';
 import type { Decision, Route, RunStats, State, Video } from './types.js';
-import { addToPlaylist, getVideos, isInPlaylist } from './youtube.js';
+import { addToPlaylist, getPlaylistTitle, getVideos, isInPlaylist } from './youtube.js';
 
 export interface RunOptions {
   dryRun: boolean;
@@ -20,6 +20,12 @@ export interface RunOptions {
 
 function message(err: unknown): string {
   return err instanceof Error ? err.message : String(err);
+}
+
+/** '"Sluice_CR" (PLdoqNGbOIGUI)', falling back to the bare id if the title cannot be fetched. */
+async function playlistLabel(playlistId: string): Promise<string> {
+  const title = await getPlaylistTitle(playlistId);
+  return title ? `"${title}" (${playlistId})` : playlistId;
 }
 
 /**
@@ -121,7 +127,9 @@ export async function runRoute(route: Route, state: State, opts: RunOptions): Pr
         }
 
         if (await isInPlaylist(route.playlistId, video.id)) {
-          log.info(`EXISTS ${video.id} "${video.title}" already in ${route.playlistId}, marking seen`);
+          log.info(
+            `EXISTS ${video.id} "${video.title}" already in ${await playlistLabel(route.playlistId)}, marking seen`,
+          );
           markDecided(rs, video.id);
           stats.rejected++;
           continue;
@@ -130,8 +138,8 @@ export async function runRoute(route: Route, state: State, opts: RunOptions): Pr
         if (opts.dryRun) {
           // Not marked decided, so a real run afterwards still adds it.
           log.info(
-            `WOULD ADD ${video.id} "${video.title}" -> ${route.playlistId} | ` +
-              `${formatDuration(video.durationSeconds)} | published ${video.publishedAt}`,
+            `WOULD ADD ${video.id} "${video.title}" -> ${await playlistLabel(route.playlistId)} | ` +
+              `${formatDuration(video.durationSeconds)} | published ${fullStamp(video.publishedAt)}`,
           );
           stats.added++;
           continue;
@@ -142,7 +150,8 @@ export async function runRoute(route: Route, state: State, opts: RunOptions): Pr
         stats.added++;
         log.info(`ADDED  ${video.id} "${video.title}"`);
         log.raw(
-          `                -> playlist ${route.playlistId} | ${formatDuration(video.durationSeconds)} | ` +
+          `                -> playlist ${await playlistLabel(route.playlistId)} | ` +
+            `${formatDuration(video.durationSeconds)} | ` +
             `published ${fullStamp(video.publishedAt)} | added ${fullStamp(new Date())}`,
         );
       } catch (err) {

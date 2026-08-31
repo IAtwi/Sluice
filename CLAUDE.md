@@ -124,6 +124,10 @@ Rules are free; the probe is an HTTP request. Order is set in `runner.ts:decide(
   means either no runs happened or something external rewrote the file (a text editor will).
   journald holds a duplicate of every line while `logs.alsoConsole` is true.
 - Human-facing times go through `fullStamp()`. Machine-facing times stay UTC ISO.
+- Playlist names in logs come from `getPlaylistTitle()`, which is lazy, cached per process, and
+  swallows errors to return undefined. It is cosmetic: never let it fail a run, and never call it
+  from the run header, which would spend a quota unit on every run including the ~47 in 48 that
+  add nothing.
 - A corrupt `state.json` throws rather than silently resetting history.
 - `npm run init` must be run before the first live run, or the backlog gets added. Enforced:
   a route with `lastRunAt === undefined && decided.length === 0` skips with a warning rather

@@ -266,7 +266,7 @@ the end of every run, so the directory cannot grow without bound.
 18:39:32 INFO  feed ok: 15 item(s) in feed, 2 candidate(s)
 18:39:33 INFO  DEFER  ghi789 "Tourney Push" (live)
 18:39:33 INFO  ADDED  I4CsWt-lp08 "Minion Giant"
-                -> playlist PLxxxx | 12m30s | published 2026-08-30 18:00:02 +03:00 | added 2026-08-30 18:39:33 +03:00
+                -> playlist "Sluice_CR" (PLdoqNGbOIGUI) | 12m30s | published 2026-08-30 18:00:02 +03:00 | added 2026-08-30 18:39:33 +03:00
 18:39:33 INFO  done: 1 added, 0 skipped, 1 deferred, 0 error(s) in 1.4s
 ```
 
@@ -314,7 +314,7 @@ The daily limit is 10,000 units.
 | Shorts URL check | 0 |
 | `videos.list` (batched, up to 50) | 1 |
 | playlist membership check | 1 |
-| `playlists.list` (preflight `--check`) | 1 |
+| `playlists.list` (preflight `--check`, and once per playlist on a run that adds) | 1 |
 | **playlist insert** | **50** |
 
 Roughly 50 units per day of fixed cost at a 30 minute cadence, leaving room for about 190 video

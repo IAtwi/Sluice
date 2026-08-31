@@ -170,3 +170,24 @@ export async function getPlaylist(
     itemCount: first.contentDetails?.itemCount,
   };
 }
+
+/** Playlist titles resolved this run. One API call per playlist per process, at most. */
+const playlistTitles = new Map<string, string>();
+
+/**
+ * Human-readable playlist title for logging. Fetched lazily, so runs that add nothing
+ * (the large majority) never spend the quota unit. Purely cosmetic: any failure returns
+ * undefined and the caller falls back to the raw id rather than failing the run.
+ */
+export async function getPlaylistTitle(playlistId: string): Promise<string | undefined> {
+  const cached = playlistTitles.get(playlistId);
+  if (cached !== undefined) return cached;
+  try {
+    const playlist = await getPlaylist(playlistId);
+    if (!playlist?.title) return undefined;
+    playlistTitles.set(playlistId, playlist.title);
+    return playlist.title;
+  } catch {
+    return undefined;
+  }
+}
