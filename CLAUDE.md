@@ -161,8 +161,19 @@ be verified on the VPS or on Hadi's own machine.
 
 ## Current routes
 
-| id | creator | playlist | rules |
-|---|---|---|---|
-| `ken` | Ken (@kenforrest), Clash Royale, `UCiFOL6V9KbvxfXvzdFSsqCw` | `PLdoqNGbOIGUI` ("Sluice_CR", private, verified) | none |
+| id | creator | channelId | playlist | rules |
+|---|---|---|---|---|
+| `ken` | Ken (@kenforrest), Clash Royale | `UCiFOL6V9KbvxfXvzdFSsqCw` | `PLdoqNGbOIGUI` ("Sluice_CR") | none |
+| `salem-zahran` | Salem Zahran (@salemzahran) | `UCDnjkCuO2vBOYLfI8euKdqg` | `PLZTEXTPH8G_0` | none |
+| `zay-el-ketab` | Zay El Ketab (@Zayelketab) | `UC4moDiwIJPtcjk8ITj_I7VQ` | `PLZTEXTPH8G_0` | none |
+| `veritasium` | Veritasium (@veritasium) | `UCHnyfMqiRRG1u-2MsSQLbXA` | `PLRCZ9kQPHIRY` | none |
+| `sebastian-lague` | Sebastian Lague (@SebastianLague) | `UCmtyQOKKmrMVaKuRXz02jbQ` | `PLRCZ9kQPHIRY` | none |
 
-More creators to be added once the first is running.
+Two pairs share a destination playlist. That is fine: each route keeps its own state key and log
+folder, and `isInPlaylist` before every insert keeps a shared playlist duplicate free.
+
+Channel ids were resolved from the handles and are trusted. The playlist ids for the four new
+routes have NOT been verified against the API. Verify with `npm run check`, which authenticates
+as the user and is the only reliable test. Do not try to verify a private playlist by loading it
+in a browser: if that browser session is signed out it reports "The playlist does not exist" for
+valid ids too, which is a false negative.
