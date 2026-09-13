@@ -130,6 +130,13 @@ Available rule builders (`src/core/rules.ts`), AND-combined:
 
 Per-route overrides: `excludeShorts`, `minDurationMinutes`, `maxDurationMinutes`, `enabled`.
 
+**Arabic and other non-Latin text:** every helper except `titleMatches` normalises both sides
+before comparing, so a rule keyed on "المُخبر" also matches "المخبر". It strips tashkeel and
+tatweel, unifies alef forms (أ إ آ to ا), alef maksura and teh marbuta, removes invisible
+zero-width and bidi control characters (which real YouTube titles do contain), unifies dash
+variants, and collapses whitespace. `titleMatches(regex)` matches the raw title untouched,
+as a precise escape hatch.
+
 ### 4. First run
 
 ```bash

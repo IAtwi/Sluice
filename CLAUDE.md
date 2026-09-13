@@ -167,18 +167,44 @@ be verified on the VPS or on Hadi's own machine.
 
 | id | creator | channelId | playlist | rules |
 |---|---|---|---|---|
-| `ken` | Ken (@kenforrest), Clash Royale | `UCiFOL6V9KbvxfXvzdFSsqCw` | `PLdoqNGbOIGUI` ("Sluice_CR") | none |
-| `salem-zahran` | Salem Zahran (@salemzahran) | `UCDnjkCuO2vBOYLfI8euKdqg` | `PLZTEXTPH8G_0` | none |
-| `zay-el-ketab` | Zay El Ketab (@Zayelketab) | `UC4moDiwIJPtcjk8ITj_I7VQ` | `PLZTEXTPH8G_0` | none |
-| `mokhbir-eqtisadi` | Mokhbir Eqtisadi (@MokhbirEqtisadi) | `UC4kRorAXuIkyIX6vwXKaLWg` | `PLZTEXTPH8G_0` | none |
-| `fireship` | Fireship (@Fireship) | `UCsBjURrPoezykLs9EqgamOA` | `PLZTEXTPH8G_0` | none |
-| `veritasium` | Veritasium (@veritasium) | `UCHnyfMqiRRG1u-2MsSQLbXA` | `PLRCZ9kQPHIRY` | none |
-| `sebastian-lague` | Sebastian Lague (@SebastianLague) | `UCmtyQOKKmrMVaKuRXz02jbQ` | `PLRCZ9kQPHIRY` | none |
+| `ken` | Ken (@kenforrest) | `UCiFOL6V9KbvxfXvzdFSsqCw` | `PLdoqNGbOIGUI` Sluice_CR | none |
+| `salem-zahran` | Salem Zahran | `UCDnjkCuO2vBOYLfI8euKdqg` | `PLZTEXTPH8G_0` Sluice_WL | none |
+| `zay-el-ketab` | Zay El Ketab | `UC4moDiwIJPtcjk8ITj_I7VQ` | `PLZTEXTPH8G_0` Sluice_WL | none |
+| `mokhbir-eqtisadi` | Mokhbir Eqtisadi | `UC4kRorAXuIkyIX6vwXKaLWg` | `PLZTEXTPH8G_0` Sluice_WL | none |
+| `fireship` | Fireship | `UCsBjURrPoezykLs9EqgamOA` | `PLZTEXTPH8G_0` Sluice_WL | none |
+| `aj-kibreet-mokhbir` | AJ+ كبريت | `UC-4KnPMmZzwAzW7SbVATUZQ` | `PLZTEXTPH8G_0` Sluice_WL | title contains "المُخبر الاقتصادي" |
+| `veritasium` | Veritasium | `UCHnyfMqiRRG1u-2MsSQLbXA` | `PLRCZ9kQPHIRY` Sluice_Learning | none |
+| `sebastian-lague` | Sebastian Lague | `UCmtyQOKKmrMVaKuRXz02jbQ` | `PLRCZ9kQPHIRY` Sluice_Learning | none |
+| `cleo-abram` | Cleo Abram | `UC415bOPUcGSamy543abLmRA` | `PLRCZ9kQPHIRY` Sluice_Learning | none |
+| `aj-kibreet-daheeh` | AJ+ كبريت | `UC-4KnPMmZzwAzW7SbVATUZQ` | `PLRCZ9kQPHIRY` Sluice_Learning | title contains "الدحيح" |
+| `bein-sports` | beIN SPORTS | `UCJUCcJUeh0Cz2xyKwkw5Q1w` | `PLKmUJKFUTrr4` Sluice_Football | title contains any of 4 competition labels |
 
-Several channels share a destination playlist. That is fine: each route keeps its own state key
-and log folder, and `isInPlaylist` before every insert keeps a shared playlist duplicate free.
+`Sluice_WL` is a general watch-later bucket, not a topical playlist. That is why unrelated
+channels share it.
 
-Channel ids are resolved from the handles and verified. Verify playlist ids with `npm run check`,
-which authenticates as the user and is the only reliable test. Do not try to verify a private
-playlist by loading it in a browser: if that browser session is signed out it reports "The
-playlist does not exist" for valid ids too, which is a false negative.
+AJ+ كبريت appears in two routes with different rules and different playlists. That is the route
+model working as designed: one RSS fetch is shared per channel per run, and each route keeps its
+own state key and log folder.
+
+### Arabic matching
+
+`normalizeForMatch()` in `rules.ts` runs over both the title and the search term before
+comparison. It is required, not defensive polish. Evidence from the live feeds:
+
+- AJ+ writes tashkeel inconsistently. "المُخبر" carries a damma on some titles; other titles on
+  the same channel have none. A rule keyed on the diacritic form would silently miss the others.
+- beIN SPORTS titles carry invisible bidi controls (U+202B observed), which break a naive
+  `includes()`.
+
+It strips tashkeel, tatweel, zero-width and bidi controls; unifies alef forms, alef maksura and
+teh marbuta; unifies dash variants; collapses whitespace; lowercases. `titleMatches(regex)` is
+deliberately NOT normalised, so it remains a precise escape hatch.
+
+Do not "simplify" rule matching back to a plain `includes()`.
+
+### Feed churn
+
+beIN SPORTS is the highest-volume channel configured. Measured: its 15-item feed spans about 59
+hours, roughly 0.25 videos an hour. At a 30 minute cadence there is a very large margin before
+the ~15-item RSS window could drop an upload, so the uploads-playlist fallback is still not
+needed. Re-measure before adding a channel that posts far more heavily.

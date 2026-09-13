@@ -5,7 +5,7 @@ import { CONFIG } from '../config.js';
 import { decodeXml, parseFeed } from '../core/feed.js';
 import { checkLiveStatus, checkRules, checkShortsAndDuration, formatDuration } from '../core/filters.js';
 import { dateStamp, fullStamp, Logger, pruneOldLogs } from '../core/logger.js';
-import { anyOf, not, titleContains, titleExcludes } from '../core/rules.js';
+import { anyOf, normalizeForMatch, not, titleContains, titleExcludes } from '../core/rules.js';
 import { markDecided } from '../core/state.js';
 import type { Route, RouteState, Video } from '../core/types.js';
 import { parseIsoDuration } from '../core/youtube.js';
@@ -70,6 +70,48 @@ check('not', not(titleContains('minion')).test(ken), false);
 check('rules AND: one fails', checkRules(ken, route({ rules: [titleContains('minion'), titleContains('zzz')] })).kind, 'reject');
 check('rules AND: all pass', checkRules(ken, route({ rules: [titleContains('minion')] })).kind, 'add');
 check('no rules accepts', checkRules(ken, route()).kind, 'add');
+
+console.log('\narabic normalisation');
+// Real titles captured from the configured channels' RSS feeds.
+const MOKHBIR = 'المُخبر الاقتصادي+ | فرنسا تغرق؟ ديون قد تبتلع الاقتصاد الفرنسي';
+const DAHEEH = 'الدحيح | انتقام الحوت القاتل';
+const KOMBARS = 'الكومبارس | غزو العراق.. فضائح ومهازل وأكاذيب';
+const BEIN_UCL = 'ملخص مباراة كومو ولايبتسيغ | دوري أبطال أوروبا - الجولة الأولى من مرحلة الدوري';
+const BEIN_LALIGA = 'ملخص مباراة ريال مدريد ورايو فايكانو | الدوري الإسباني - الجولة 5';
+const BEIN_EPL = 'ملخص مباراة سندرلاند وآرسنال | الدوري الإنجليزي الممتاز - الجولة 4';
+const BEIN_TENNIS = 'بن شيلتون يبلغ نهائي بطولة أمريكا المفتوحة للتنس';
+const BEIN_BIDI = '‫الدوري الإسباني يستعد لإثارة كروية لا تتوقف ومتعة بأعلى طراز';
+
+check('strips tashkeel', normalizeForMatch('المُخبر'), normalizeForMatch('المخبر'));
+check('strips bidi controls', normalizeForMatch(BEIN_BIDI).startsWith('‫'), false);
+check('unifies alef forms', normalizeForMatch('أبطال') === normalizeForMatch('ابطال'), true);
+check('collapses whitespace', normalizeForMatch('a   b'), 'a b');
+check('unifies dash variants', normalizeForMatch('a – b'), 'a - b');
+check('latin still lowercases', normalizeForMatch('  Minion GIANT '), 'minion giant');
+
+const mokhbirRule = titleContains('المُخبر الاقتصادي');
+check('mokhbir matches real title', mokhbirRule.test(video({ title: MOKHBIR })), true);
+// The point of normalising: the rule is written with a damma, the title may lack it.
+check('mokhbir matches undiacritised title',
+  mokhbirRule.test(video({ title: 'المخبر الاقتصادي+ | حلقة جديدة' })), true);
+check('mokhbir rejects daheeh', mokhbirRule.test(video({ title: DAHEEH })), false);
+check('mokhbir rejects kombars', mokhbirRule.test(video({ title: KOMBARS })), false);
+
+const daheehRule = titleContains('الدحيح');
+check('daheeh matches real title', daheehRule.test(video({ title: DAHEEH })), true);
+check('daheeh rejects mokhbir', daheehRule.test(video({ title: MOKHBIR })), false);
+
+const beinRule = titleContains(
+  'دوري أبطال أوروبا -',
+  'الدوري الإسباني - الجولة',
+  'الدوري الإنجليزي الممتاز - الجولة',
+  'كأس الاتحاد الإنجليزي -',
+);
+check('bein matches champions league', beinRule.test(video({ title: BEIN_UCL })), true);
+check('bein matches la liga', beinRule.test(video({ title: BEIN_LALIGA })), true);
+check('bein matches premier league', beinRule.test(video({ title: BEIN_EPL })), true);
+check('bein rejects tennis', beinRule.test(video({ title: BEIN_TENNIS })), false);
+check('bein rejects la liga promo without round', beinRule.test(video({ title: BEIN_BIDI })), false);
 
 console.log('\nlive and premiere handling');
 check('live defers', checkLiveStatus(video({ liveStatus: 'live' })).kind, 'defer');
