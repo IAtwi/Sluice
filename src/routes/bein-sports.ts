@@ -9,7 +9,13 @@ import type { Route } from '../core/types.js';
  * deliberately narrow: it keys on the competition label beIN puts after the "|"
  * separator, e.g. "ملخص مباراة ريال مدريد ورايو فايكانو | الدوري الإسباني - الجولة 5".
  *
- * titleContains is OR across its terms, so any one of the four is enough.
+ * titleContains is OR across its terms, so any one term matching is enough.
+ *
+ * beIN renamed the English league mid-September 2026, dropping "الممتاز":
+ *   before: "... | الدوري الإنجليزي الممتاز - الجولة 4"
+ *   after:  "... | الدوري الإنجليزي - الجولة 5"
+ * Neither string is a substring of the other, so both are listed. Keeping the old form
+ * costs nothing and means a revert on beIN's side does not silently stop matching.
  */
 export const beinSports: Route = {
   id: 'bein-sports',
@@ -20,6 +26,7 @@ export const beinSports: Route = {
     titleContains(
       'دوري أبطال أوروبا -',
       'الدوري الإسباني - الجولة',
+      'الدوري الإنجليزي - الجولة',
       'الدوري الإنجليزي الممتاز - الجولة',
       'كأس الاتحاد الإنجليزي -',
     ),

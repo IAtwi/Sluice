@@ -78,7 +78,11 @@ const DAHEEH = 'الدحيح | انتقام الحوت القاتل';
 const KOMBARS = 'الكومبارس | غزو العراق.. فضائح ومهازل وأكاذيب';
 const BEIN_UCL = 'ملخص مباراة كومو ولايبتسيغ | دوري أبطال أوروبا - الجولة الأولى من مرحلة الدوري';
 const BEIN_LALIGA = 'ملخص مباراة ريال مدريد ورايو فايكانو | الدوري الإسباني - الجولة 5';
-const BEIN_EPL = 'ملخص مباراة سندرلاند وآرسنال | الدوري الإنجليزي الممتاز - الجولة 4';
+// beIN renamed the English league mid-September 2026. Both forms are real, captured
+// from the live feed ten days apart, and both must keep matching.
+const BEIN_EPL_OLD = 'ملخص مباراة سندرلاند وآرسنال | الدوري الإنجليزي الممتاز - الجولة 4';
+const BEIN_EPL_NEW = 'ملخص مباراة فولهام ومانشستر يونايتد | الدوري الإنجليزي - الجولة 5';
+const BEIN_LIGUE1 = 'ملخص مباراة مارسيليا وباريس سان جيرمان | الدوري الفرنسي - الجولة 5';
 const BEIN_TENNIS = 'بن شيلتون يبلغ نهائي بطولة أمريكا المفتوحة للتنس';
 const BEIN_BIDI = '‫الدوري الإسباني يستعد لإثارة كروية لا تتوقف ومتعة بأعلى طراز';
 
@@ -104,12 +108,15 @@ check('daheeh rejects mokhbir', daheehRule.test(video({ title: MOKHBIR })), fals
 const beinRule = titleContains(
   'دوري أبطال أوروبا -',
   'الدوري الإسباني - الجولة',
+  'الدوري الإنجليزي - الجولة',
   'الدوري الإنجليزي الممتاز - الجولة',
   'كأس الاتحاد الإنجليزي -',
 );
 check('bein matches champions league', beinRule.test(video({ title: BEIN_UCL })), true);
 check('bein matches la liga', beinRule.test(video({ title: BEIN_LALIGA })), true);
-check('bein matches premier league', beinRule.test(video({ title: BEIN_EPL })), true);
+check('bein matches english league, old naming', beinRule.test(video({ title: BEIN_EPL_OLD })), true);
+check('bein matches english league, new naming', beinRule.test(video({ title: BEIN_EPL_NEW })), true);
+check('bein rejects french league', beinRule.test(video({ title: BEIN_LIGUE1 })), false);
 check('bein rejects tennis', beinRule.test(video({ title: BEIN_TENNIS })), false);
 check('bein rejects la liga promo without round', beinRule.test(video({ title: BEIN_BIDI })), false);
 
