@@ -83,6 +83,12 @@ const BEIN_LALIGA = 'ملخص مباراة ريال مدريد ورايو فاي
 const BEIN_EPL_OLD = 'ملخص مباراة سندرلاند وآرسنال | الدوري الإنجليزي الممتاز - الجولة 4';
 const BEIN_EPL_NEW = 'ملخص مباراة فولهام ومانشستر يونايتد | الدوري الإنجليزي - الجولة 5';
 const BEIN_LIGUE1 = 'ملخص مباراة مارسيليا وباريس سان جيرمان | الدوري الفرنسي - الجولة 5';
+const BEIN_NATIONS = 'ملخص مباراة تركيا وفرنسا | دوري الأمم الأوروبية - الجولة 1';
+// A news roundup that names the competition but is not a match highlight. The
+// "- الجولة" suffix is what keeps these out.
+const BEIN_NATIONS_NEWS =
+  'قطر تدخل قائمة الذهب في الألعاب الآسيوية.. وانطلاقة مرتقبة لدوري الأمم الأوروبية';
+const BEIN_AFCON = 'ملخص مباراة مصر وأنغولا | تصفيات كأس أمم إفريقيا 2027 - الجولة 1';
 const BEIN_TENNIS = 'بن شيلتون يبلغ نهائي بطولة أمريكا المفتوحة للتنس';
 const BEIN_BIDI = '‫الدوري الإسباني يستعد لإثارة كروية لا تتوقف ومتعة بأعلى طراز';
 
@@ -107,6 +113,7 @@ check('daheeh rejects mokhbir', daheehRule.test(video({ title: MOKHBIR })), fals
 
 const beinRule = titleContains(
   'دوري أبطال أوروبا -',
+  'دوري الأمم الأوروبية - الجولة',
   'الدوري الإسباني - الجولة',
   'الدوري الإنجليزي - الجولة',
   'الدوري الإنجليزي الممتاز - الجولة',
@@ -117,6 +124,10 @@ check('bein matches la liga', beinRule.test(video({ title: BEIN_LALIGA })), true
 check('bein matches english league, old naming', beinRule.test(video({ title: BEIN_EPL_OLD })), true);
 check('bein matches english league, new naming', beinRule.test(video({ title: BEIN_EPL_NEW })), true);
 check('bein rejects french league', beinRule.test(video({ title: BEIN_LIGUE1 })), false);
+check('bein matches nations league', beinRule.test(video({ title: BEIN_NATIONS })), true);
+check('bein rejects nations league news roundup',
+  beinRule.test(video({ title: BEIN_NATIONS_NEWS })), false);
+check('bein rejects afcon qualifiers', beinRule.test(video({ title: BEIN_AFCON })), false);
 check('bein rejects tennis', beinRule.test(video({ title: BEIN_TENNIS })), false);
 check('bein rejects la liga promo without round', beinRule.test(video({ title: BEIN_BIDI })), false);
 
